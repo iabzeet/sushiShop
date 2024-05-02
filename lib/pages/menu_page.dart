@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:sushi/components/button.dart';
 import 'package:sushi/components/food_tile.dart';
+import 'package:sushi/models/shop.dart';
+import 'package:sushi/pages/food_details_page.dart';
 import 'package:sushi/themes/colors.dart';
-import 'package:sushi/models/food.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
@@ -13,39 +15,50 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
-  //food menu
-  List foodMenu = [
-    //salmon sushi
-    Food(
-      name: "Salmon Sushi", 
-      price: "21.00", 
-      imagePath: "lib/images/sushi3.png", 
-      rating: "4.9",
-    ),
+  // navigate to food item details page
+  void navigateToFoodDetails(int index) {
+    //get the shop and it's menu
+    final shop = context.read<Shop>();
+    final foodMenu = shop.foodMenu;
+    
+    Navigator.push(
+      context, 
+      MaterialPageRoute(
+        builder: (context) => FoodDetailsPage(
+          food: foodMenu[index],
+        ),
+      ),
+    );
+  }
 
-    //tuna
-    Food(
-      name: "Tuna", 
-      price: "23.00", 
-      imagePath: "lib/images/sushi4.png", 
-      rating: "4.3",
-    ),
-  ];
   @override
   Widget build(BuildContext context) {
+    //get the shop and it's menu
+    final shop = context.read<Shop>();
+    final foodMenu = shop.foodMenu;
     return Scaffold(
       backgroundColor: Colors.grey[300],
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        foregroundColor: Colors.grey[800],
         elevation: 0,
-        leading: Icon(
+        leading: const Icon(
           Icons.menu,
-          color: Colors.grey[900],
         ),
-        title: Text(
-          'Tokyo',
-          style: TextStyle(color: Colors.grey[900]),
+        title: const Center(
+          child: Text(
+            '  Tokyo    ',
+          ),
         ),
+        actions: [
+          //cart button
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/cartpage');
+            }, 
+            icon: const Icon(Icons.shopping_cart),
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +119,8 @@ class _MenuPageState extends State<MenuPage> {
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.white),
                   borderRadius: BorderRadius.circular(20),
-                )
+                ),
+                hintText: "Search here...",
               ),
             ),
           ),
@@ -134,6 +148,7 @@ class _MenuPageState extends State<MenuPage> {
               itemCount: foodMenu.length,
               itemBuilder: (context, index) => FoodTile(
                 food: foodMenu[index],
+                onTap: () => navigateToFoodDetails(index),
               ),
             ),
           ),
@@ -141,6 +156,57 @@ class _MenuPageState extends State<MenuPage> {
           const SizedBox(height: 25),
 
           //popular food
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(20),
+            ),
+            margin: const EdgeInsets.only(left: 25, right: 25, bottom: 25),
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    //image
+                Image.asset(
+                  'lib/images/sushi2.png',
+                  height: 60,
+                ),
+                
+                const SizedBox(width: 20),
+
+                //name and price
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    //name
+                    Text(
+                      "Salmon Eggs",
+                      style: GoogleFonts.dmSerifDisplay(fontSize: 18),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    //price
+                    Text(
+                      '\$21.00',
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
+                  ],
+                ),
+                  ],
+                ),
+
+                //heart
+                const Icon(
+                  Icons.favorite_outline, 
+                  color: Colors.grey, 
+                  size: 28,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
